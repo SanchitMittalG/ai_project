@@ -21,3 +21,9 @@ lime                  # local, model-agnostic explanations
 # Notebook environment
 jupyter
 ipywidgets            # needed for display() and progress bars in Jupyter
+
+# Pinned versions for reproducibility
+# scikit-learn==1.4.2
+# xgboost==2.0.3
+# lime==0.2.0.1
+# shap==0.45.0
