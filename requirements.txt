@@ -1,0 +1,23 @@
+# Core data science libraries
+numpy
+pandas
+matplotlib
+seaborn               # for heatmap and distribution plots
+
+# ML models
+scikit-learn
+xgboost
+catboost
+pytorch-tabnet
+torch
+interpret             # for Explainable Boosting Machine (EBM)
+
+# Class imbalance handling
+imbalanced-learn      # SMOTE oversampling
+
+# Explainable AI (XAI)
+lime                  # local, model-agnostic explanations
+
+# Notebook environment
+jupyter
+ipywidgets            # needed for display() and progress bars in Jupyter
