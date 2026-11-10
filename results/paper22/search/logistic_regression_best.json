@@ -1,0 +1,14 @@
+{
+  "parameters": {
+    "classifier__C": 10
+  },
+  "cv_f1_macro": 0.9678309127582061,
+  "grid": {
+    "C": [
+      0.1,
+      1,
+      10
+    ]
+  },
+  "candidates": 3
+}

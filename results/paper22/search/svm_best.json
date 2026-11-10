@@ -1,0 +1,18 @@
+{
+  "parameters": {
+    "classifier__C": 10,
+    "classifier__kernel": "rbf"
+  },
+  "cv_f1_macro": 0.9827189005943178,
+  "grid": {
+    "C": [
+      1,
+      10
+    ],
+    "kernel": [
+      "rbf",
+      "linear"
+    ]
+  },
+  "candidates": 4
+}

@@ -57,6 +57,9 @@ py -3.12 -m venv .venv
 On Linux/macOS replace `.venv\Scripts\python.exe` with `.venv/bin/python`.
 The original exploratory notebook has heavier optional dependencies in
 `requirements.txt`; those are not needed for the paper pipeline.
+`requirements-paper-lock.txt` records the exact resolved validation environment
+(including transitive dependencies); use it instead of `requirements-paper.txt`
+when reproducing that environment on Python 3.12.
 
 ## Run the complete experiment
 
@@ -98,10 +101,10 @@ The seven keys must match exactly. Invalid domains, missing fields and nonfinite
 inputs are rejected. Low maximum probability produces `abstained_low_confidence`
 and a null recommendation; alternatives remain visible. Out-of-training-range
 inputs produce warnings. Scores are **not calibrated crop-success probabilities**
+and neither explanations nor recommendations prescribe nutrient interventions.
 The recommended label follows the estimator's decision and the threshold uses
 that label's probability. For SVM this can differ from the probability ranking;
 the output warns explicitly, and explanations target the estimator's decision.
-and neither explanations nor recommendations prescribe nutrient interventions.
 Only load trusted joblib files: Python model deserialization can execute code.
 
 ## Evidence and reporting

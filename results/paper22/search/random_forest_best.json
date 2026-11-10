@@ -1,0 +1,18 @@
+{
+  "parameters": {
+    "classifier__max_features": "sqrt",
+    "classifier__n_estimators": 100
+  },
+  "cv_f1_macro": 0.9954453975143631,
+  "grid": {
+    "n_estimators": [
+      100,
+      200
+    ],
+    "max_features": [
+      "sqrt",
+      null
+    ]
+  },
+  "candidates": 4
+}

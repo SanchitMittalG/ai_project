@@ -1,0 +1,19 @@
+{
+  "parameters": {
+    "classifier__n_neighbors": 5,
+    "classifier__weights": "distance"
+  },
+  "cv_f1_macro": 0.9766127185249441,
+  "grid": {
+    "n_neighbors": [
+      3,
+      5,
+      9
+    ],
+    "weights": [
+      "uniform",
+      "distance"
+    ]
+  },
+  "candidates": 6
+}

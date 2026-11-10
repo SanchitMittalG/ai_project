@@ -1,0 +1,21 @@
+{
+  "missing_training_values": {
+    "N": 0,
+    "P": 0,
+    "K": 0,
+    "temperature": 0,
+    "humidity": 0,
+    "ph": 0,
+    "rainfall": 0
+  },
+  "training_zscore_abs_gt_3_counts": {
+    "N": 0,
+    "P": 0,
+    "K": 70,
+    "temperature": 24,
+    "humidity": 0,
+    "ph": 19,
+    "rainfall": 17
+  },
+  "note": "Diagnostics only; no rows removed. All fitted preprocessing is fold-local."
+}

@@ -1,0 +1,12 @@
+{
+  "shap_method": "KernelExplainer on raw units, identity link, training-only background",
+  "background_rows": 32,
+  "rows_explained": 12,
+  "sample_role": "held-out test",
+  "shap_nsamples": 128,
+  "lime_training_rows": 1540,
+  "seed": 42,
+  "global_aggregation": "Mean absolute SHAP over sampled rows and all output classes",
+  "beeswarm": "Each row's predicted-class contributions; class may vary by row",
+  "warning": "Sampled model behavior, not causal explanations or validated agronomic advice."
+}

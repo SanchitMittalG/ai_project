@@ -1,0 +1,6 @@
+{
+  "label_code_rmse": 1.4301938838683885,
+  "label_code_mae": 0.1787878787878788,
+  "label_code_r2": 0.9491812535290796,
+  "warning": "Arbitrary alphabetical class codes; not yield errors or meaningful crop distances."
+}

@@ -1,0 +1,50 @@
+{
+  "row_index": 1438,
+  "crop": "mungbean",
+  "inputs": {
+    "N": 36.0,
+    "P": 43.0,
+    "K": 22.0,
+    "temperature": 27.82684262,
+    "humidity": 87.16679147,
+    "ph": 6.389882166,
+    "rainfall": 58.37249772
+  },
+  "probability": 1.0,
+  "intercept": -0.022188332410860045,
+  "surrogate_r2": 0.27577473797447627,
+  "surrogate_prediction": 0.22469669308443044,
+  "fidelity_warning": "Low surrogate fidelity; do not treat weights as a faithful local account.",
+  "conditions": [
+    {
+      "condition": "rainfall <= 64.70",
+      "weight": 0.07261683206280914
+    },
+    {
+      "condition": "80.55 < humidity <= 89.87",
+      "weight": 0.06798042091576215
+    },
+    {
+      "condition": "21.00 < N <= 37.00",
+      "weight": 0.033665262380764366
+    },
+    {
+      "condition": "20.00 < K <= 32.00",
+      "weight": 0.03028716149635154
+    },
+    {
+      "condition": "28.00 < P <= 51.00",
+      "weight": 0.022293579793693657
+    },
+    {
+      "condition": "25.50 < temperature <= 28.48",
+      "weight": 0.014533669997128667
+    },
+    {
+      "condition": "5.96 < ph <= 6.43",
+      "weight": 0.005508098848780984
+    }
+  ],
+  "num_perturbations": 2500,
+  "warning": "Local surrogate weights are not causal effects; inspect surrogate fidelity."
+}

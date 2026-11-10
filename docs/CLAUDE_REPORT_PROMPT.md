@@ -19,6 +19,11 @@ Team: Aadi Singhal (202352301), Piyush Jain (202352324), Sanchit Mittal
 (202352328). Leave institution, supervisor and submission date as clearly marked
 placeholders unless I provide them.
 
+For the completed experiment in this repository, set `RUN_DIRECTORY` to
+`results/paper22` (absolute path in the original checkout:
+`E:/aiiii/ai_project/results/paper22`). The fitted binary is intentionally not
+included in that evidence snapshot and is not needed to write the report.
+
 ## Inputs you must inspect before drafting
 
 1. The attached PDF, particularly Sections III-V, Algorithm 1 and Tables II-III.
