@@ -7,7 +7,8 @@ import pandas as pd
 from .evaluation import save_figure, save_json
 
 
-def explain_model(bundle, training, samples, output, seed=42, sample_count=12, lime_samples=2500):
+def explain_model(bundle, training, samples, output, seed=42, sample_count=12, lime_samples=2500,
+                  sample_role="held-out test"):
     import shap
     from lime.lime_tabular import LimeTabularExplainer
 
@@ -44,7 +45,7 @@ def explain_model(bundle, training, samples, output, seed=42, sample_count=12, l
     importance = pd.Series(np.abs(values).mean(axis=(0, 2)), index=feature_names).sort_values(ascending=False)
     importance.rename("mean_absolute_shap_all_classes").to_csv(output / "shap_global.csv")
     importance.sort_values().plot.barh(figsize=(8, 5))
-    plt.xlabel("Mean absolute SHAP contribution (all classes, sampled test rows)")
+    plt.xlabel("Mean absolute SHAP contribution (all classes, sampled rows)")
     save_figure(output / "shap_global.png")
     shap.summary_plot(predicted_values, selected, show=False)
     plt.xlabel("SHAP contribution to each row's predicted class")
@@ -83,9 +84,9 @@ def explain_model(bundle, training, samples, output, seed=42, sample_count=12, l
     save_figure(output / "lime_local.png")
     save_json(output / "method.json", {
         "shap_method": "KernelExplainer on raw units, identity link, training-only background",
-        "background_rows": len(background), "test_rows_explained": len(selected),
+        "background_rows": len(background), "rows_explained": len(selected), "sample_role": sample_role,
         "shap_nsamples": 128, "lime_training_rows": len(training), "seed": seed,
-        "global_aggregation": "Mean absolute SHAP over sampled rows and all 22 output classes",
+        "global_aggregation": "Mean absolute SHAP over sampled rows and all output classes",
         "beeswarm": "Each row's predicted-class contributions; class may vary by row",
         "warning": "Sampled model behavior, not causal explanations or validated agronomic advice.",
     })

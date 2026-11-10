@@ -23,6 +23,8 @@ def recommend(bundle, inputs, threshold=0.5, top_k=3):
     result = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(), "inputs": frame.iloc[0].to_dict(),
         "model": bundle["metadata"]["selected_model"], "threshold": threshold,
+        "dataset_sha256": bundle["metadata"]["data_sha256"],
+        "cohort": bundle["metadata"].get("cohort", "legacy"),
         "status": "recommended" if accepted else "abstained_low_confidence",
         "recommended_crop": bundle["class_names"][ranking[0]] if accepted else None,
         "ranking": [{"crop": bundle["class_names"][index], "probability": float(probabilities[index])}

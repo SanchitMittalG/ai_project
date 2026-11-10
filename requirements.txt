@@ -17,6 +17,7 @@ imbalanced-learn      # SMOTE oversampling
 
 # Explainable AI (XAI)
 lime                  # local, model-agnostic explanations
+shap                  # multiclass local and global explanations
 
 # Notebook environment
 jupyter

@@ -10,23 +10,34 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.base import clone
+from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_validate
 from sklearn.preprocessing import LabelEncoder
 
-from . import FEATURES, TARGET
+from . import FEATURES, PAPER_CROPS, TARGET
 from .data import load_dataset, split_dataset
 from .evaluation import export_eda, export_evaluation, metrics, save_figure, save_json
 from .models import make_pipeline, model_definitions
 
 
 def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, explain=True,
-                   shap_samples=12, lime_samples=2500):
+                   shap_samples=12, lime_samples=2500, cohort="paper22"):
     output = Path(output)
     if output.exists() and any(output.iterdir()):
         raise ValueError("Output directory must be empty; use a new run name to avoid stale evidence")
     if folds < 2 or jobs == 0 or shap_samples < 1 or lime_samples < 100:
         raise ValueError("Require folds >= 2, jobs != 0, shap_samples >= 1, lime_samples >= 100")
     frame, duplicates = load_dataset(data_path)
+    available_rows = len(frame)
+    available_classes = frame[TARGET].nunique()
+    if cohort == "paper22":
+        if not set(PAPER_CROPS).issubset(set(frame[TARGET])):
+            raise ValueError("The paper22 cohort requires all 22 canonical crop labels")
+        frame = frame[frame[TARGET].isin(PAPER_CROPS)].reset_index(drop=True)
+    elif cohort != "all":
+        raise ValueError("Cohort must be paper22 or all")
+    print(f"Cohort {cohort}: {len(frame)} rows, {frame[TARGET].nunique()} crops "
+          f"(source: {available_rows} rows, {available_classes} crops)", flush=True)
     partitions = split_dataset(frame, seed)
     features = frame.loc[:, FEATURES]
     encoder = LabelEncoder().fit(frame[TARGET])
@@ -54,8 +65,10 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
     summaries = []
     fold_records = []
     started = time.perf_counter()
-    scoring = {"accuracy": "accuracy", "precision_macro": "precision_macro",
-               "recall_macro": "recall_macro", "f1_macro": "f1_macro",
+    scoring = {"accuracy": "accuracy",
+               "precision_macro": make_scorer(precision_score, average="macro", zero_division=0),
+               "recall_macro": make_scorer(recall_score, average="macro", zero_division=0),
+               "f1_macro": make_scorer(f1_score, average="macro", zero_division=0),
                "neg_label_code_rmse": "neg_root_mean_squared_error"}
     for name, estimator in models.items():
         print(f"Training and cross-validating {name}", flush=True)
@@ -77,7 +90,7 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
         search = GridSearchCV(
             make_pipeline(clone(estimator)),
             {f"classifier__{key}": value for key, value in grids[name].items()},
-            scoring="f1_macro", cv=cv, n_jobs=jobs, refit=True, error_score="raise",
+            scoring=scoring, cv=cv, n_jobs=jobs, refit="f1_macro", error_score="raise",
             return_train_score=True,
         ).fit(features.loc[training], labels[training])
         search_dir = output / "search"
@@ -87,8 +100,13 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
         candidates[tuned_name] = search.best_estimator_
         validation_scores = metrics(labels[validation], search.predict(features.loc[validation]))
         summaries.append({"model": tuned_name, "kind": "grid_search", **validation_scores,
-                          "cv_accuracy_mean": None, "cv_accuracy_std": None,
+                          "cv_accuracy_mean": search.cv_results_["mean_test_accuracy"][search.best_index_],
+                          "cv_accuracy_std": search.cv_results_["std_test_accuracy"][search.best_index_],
                           "cv_f1_macro_mean": search.best_score_})
+        for fold in range(folds):
+            fold_records.append({"model": tuned_name, "fold": fold + 1,
+                                 **{metric: search.cv_results_[f"split{fold}_test_{metric}"][search.best_index_]
+                                    for metric in scoring}})
         save_json(search_dir / f"{name}_best.json", {
             "parameters": search.best_params_, "cv_f1_macro": search.best_score_,
             "grid": grids[name], "candidates": len(search.cv_results_["params"]),
@@ -108,6 +126,7 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
         "split_sizes": {name: len(indices) for name, indices in partitions.items()},
         "data_sha256": hashlib.sha256(Path(data_path).read_bytes()).hexdigest(),
         "data_rows": len(frame), "removed_exact_duplicates": duplicates,
+        "cohort": cohort, "source_data_rows": available_rows, "source_data_classes": available_classes,
         "class_counts": frame[TARGET].value_counts().sort_index().to_dict(),
         "classes": encoder.classes_.tolist(), "features": list(FEATURES),
         "grids": grids, "historical_yield_available": False,
@@ -140,10 +159,18 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
     bundle = {"model": selected, "class_names": encoder.classes_.tolist(),
               "features": list(FEATURES), "metadata": metadata,
               "training_min": features.loc[training].min().to_dict(),
-              "training_max": features.loc[training].max().to_dict()}
+              "training_max": features.loc[training].max().to_dict(),
+              "training_reference": features.loc[training].copy()}
     joblib.dump(bundle, output / "model.joblib")
     ablations = []
     full_score = metrics(labels[testing], selected.predict(features.loc[testing]))
+    import matplotlib.pyplot as plt
+    confidence = selected.predict_proba(features.loc[testing]).max(axis=1)
+    plt.figure(figsize=(8, 5))
+    plt.hist(confidence, bins=20, range=(0, 1), edgecolor="black")
+    plt.xlabel("Maximum uncalibrated class probability")
+    plt.ylabel("Test samples")
+    save_figure(output / "prediction_confidence.png")
     for removed in [None, *FEATURES]:
         remaining = [feature for feature in FEATURES if feature != removed]
         if removed is None:

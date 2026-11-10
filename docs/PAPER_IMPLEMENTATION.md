@@ -34,6 +34,12 @@ outputs are not evidence for this reproduction.
 
 ## Assumptions and limitations
 
+- Repository CSV audit: 6,596 rows and 51 classes, not the README's former
+  2,200 rows and 22 classes. The default paper22 cohort explicitly selects the
+  22 canonical labels (100 rows each). The all cohort is a separate, imbalanced
+  extension. This is a cohort reconstruction, not verified original dataset
+  provenance. Both the source hash and original source row numbers are saved.
+
 - The paper reserves 70% for training and 30% for testing/validation but does
   not subdivide the latter. We choose 15% validation and 15% test.
 - Exact grids, source code and split indices are unavailable. Our recorded
@@ -41,7 +47,9 @@ outputs are not evidence for this reproduction.
 - Algorithm 1 uses min-max scaling while prose mentions z-scores. Z-scores are
   diagnostic only; no validation/test-based outlier removal occurs.
 - Labels are classification targets, never inputs. One-hot target inputs would
-  leak the answer. The balanced data does not require SMOTE.
+  leak the answer. The balanced paper22 cohort does not require SMOTE. The all
+  cohort retains its natural imbalance and reports macro and weighted metrics;
+  it must not be described as the paper's balanced dataset.
 - The CSV has no yield, date, field, location or rotation-history columns.
   Historical yield, temporal generalization, regional fairness and nutrient
   interventions cannot be trained or validated with this dataset.
