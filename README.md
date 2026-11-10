@@ -39,7 +39,7 @@ project does not claim to predict yield or establish temporal generalization.
 - Multiclass SHAP global/local explanations and LIME explanations with surrogate fidelity.
 - Trusted-model save/reload, ranked recommendations, confidence-based abstention and range warnings.
 - Structured prediction logs and optional create-only authenticated GCS backups.
-- Evidence summaries, artifact SHA256 manifests and a grounded Claude report-writing prompt.
+- Report-ready evidence summaries, figures and artifact SHA256 manifests.
 
 See [the paper mapping](docs/PAPER_IMPLEMENTATION.md) for assumptions, deviations,
 and unsupported claims. Exact author grids/splits are unavailable. No result is
@@ -127,9 +127,9 @@ REPORT_EVIDENCE.md             report entry point and limitations
 manifest.json                 artifact SHA256 hashes
 ```
 
-Use [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) with the supplied
-paper and a complete run's evidence. The prompt requires measured results and
-distinguishes the paper cohort from the expanded dataset. An optional
+Use `results/paper22/REPORT_EVIDENCE.md`, the supplied paper and the complete
+run's CSV/JSON evidence when writing the report. Keep the paper cohort separate
+from the expanded dataset and use measured results rather than legacy outputs. An optional
 `notebooks/paper_reproduction.ipynb` wraps the same pipeline without duplicating
 the implementation. The original `crop_recommendation_pipeline.ipynb` is a legacy
 extension: its test-selected model and saved results are not reproduction evidence.

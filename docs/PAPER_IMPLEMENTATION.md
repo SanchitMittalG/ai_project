@@ -30,7 +30,7 @@ outputs are not evidence for this reproduction.
 | Ablation | Refit frozen selected configuration without each input |
 | Suitability threshold | Ranked scores, abstention and range warnings |
 | Remote storage | Optional authenticated Google Cloud Storage export |
-| Report | Evidence, figures, provenance and Claude report prompt |
+| Report | Evidence, figures and provenance |
 
 ## Assumptions and limitations
 
