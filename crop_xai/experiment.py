@@ -20,8 +20,20 @@ from .evaluation import export_eda, export_evaluation, metrics, save_figure, sav
 from .models import make_pipeline, model_definitions
 
 
+def source_provenance():
+    root = Path(__file__).resolve().parents[1]
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, cwd=root).strip()
+        dirty = bool(subprocess.check_output(["git", "status", "--porcelain"], text=True, cwd=root).strip())
+        return {"source_commit": commit, "source_dirty": dirty}
+    except (OSError, subprocess.CalledProcessError):
+        return {"source_commit": None, "source_dirty": None}
+
+
 def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, explain=True,
                    shap_samples=12, lime_samples=2500, cohort="paper22"):
+    started = time.perf_counter()
+    provenance = source_provenance()
     output = Path(output)
     if output.exists() and any(output.iterdir()):
         raise ValueError("Output directory must be empty; use a new run name to avoid stale evidence")
@@ -64,7 +76,6 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
     candidates = {}
     summaries = []
     fold_records = []
-    started = time.perf_counter()
     scoring = {"accuracy": "accuracy",
                "precision_macro": make_scorer(precision_score, average="macro", zero_division=0),
                "recall_macro": make_scorer(recall_score, average="macro", zero_division=0),
@@ -135,16 +146,7 @@ def run_experiment(data_path, output, seed=42, folds=5, jobs=1, quick=False, exp
                      ("numpy", "pandas", "scikit-learn", "shap", "lime", "matplotlib", "joblib")},
         "explanations_requested": explain, "status": "running",
     }
-    try:
-        metadata["source_commit"] = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True, cwd=Path(__file__).resolve().parents[1]
-        ).strip()
-        metadata["source_dirty"] = bool(subprocess.check_output(
-            ["git", "status", "--porcelain"], text=True, cwd=Path(__file__).resolve().parents[1]
-        ).strip())
-    except (OSError, subprocess.CalledProcessError):
-        metadata["source_commit"] = None
-        metadata["source_dirty"] = None
+    metadata.update(provenance)
     save_json(output / "run.json", metadata)
     test_records = []
     for name, model in candidates.items():

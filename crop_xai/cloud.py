@@ -1,4 +1,5 @@
 import hashlib
+import json
 from pathlib import Path, PurePosixPath
 
 
@@ -8,6 +9,9 @@ def upload_run(directory, bucket_name, prefix):
     directory = Path(directory).resolve()
     if not (directory / "run.json").is_file():
         raise ValueError("Upload requires an experiment directory containing run.json")
+    metadata = json.loads((directory / "run.json").read_text(encoding="utf-8"))
+    if metadata.get("status") != "complete":
+        raise ValueError("Only complete experiment runs may be backed up")
     if not bucket_name or "/" in bucket_name or not prefix.strip("/"):
         raise ValueError("Supply a bare bucket name and a nonempty backup prefix")
     client = storage.Client()

@@ -37,7 +37,8 @@ def explain_model(bundle, training, samples, output, seed=42, sample_count=12, l
     if values.shape != expected_shape:
         raise ValueError(f"Unexpected multiclass SHAP shape {values.shape}; expected {expected_shape}")
     probabilities = predict(selected.to_numpy())
-    predicted_classes = probabilities.argmax(axis=1)
+    predicted_labels = model.predict(selected)
+    predicted_classes = np.array([np.flatnonzero(model.classes_ == label)[0] for label in predicted_labels])
     predicted_values = np.stack([values[row, :, class_index] for row, class_index in enumerate(predicted_classes)])
     np.savez_compressed(output / "shap_values.npz", values=values,
                         expected_values=explainer.expected_value, row_indices=selected.index.to_numpy(),
@@ -47,7 +48,7 @@ def explain_model(bundle, training, samples, output, seed=42, sample_count=12, l
     importance.sort_values().plot.barh(figsize=(8, 5))
     plt.xlabel("Mean absolute SHAP contribution (all classes, sampled rows)")
     save_figure(output / "shap_global.png")
-    shap.summary_plot(predicted_values, selected, show=False)
+    shap.summary_plot(predicted_values, selected, show=False, rng=np.random.default_rng(seed))
     plt.xlabel("SHAP contribution to each row's predicted class")
     save_figure(output / "shap_beeswarm.png")
     local_records = []
@@ -75,6 +76,8 @@ def explain_model(bundle, training, samples, output, seed=42, sample_count=12, l
         "inputs": selected.iloc[0].to_dict(), "probability": float(probabilities[0, class_index]),
         "intercept": float(explanation.intercept[class_index]),
         "surrogate_r2": float(explanation.score), "surrogate_prediction": float(explanation.local_pred[0]),
+        "fidelity_warning": "Low surrogate fidelity; do not treat weights as a faithful local account."
+                            if explanation.score < 0.5 else None,
         "conditions": [{"condition": condition, "weight": weight}
                        for condition, weight in explanation.as_list(label=class_index)],
         "num_perturbations": lime_samples,

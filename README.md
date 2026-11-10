@@ -98,6 +98,9 @@ The seven keys must match exactly. Invalid domains, missing fields and nonfinite
 inputs are rejected. Low maximum probability produces `abstained_low_confidence`
 and a null recommendation; alternatives remain visible. Out-of-training-range
 inputs produce warnings. Scores are **not calibrated crop-success probabilities**
+The recommended label follows the estimator's decision and the threshold uses
+that label's probability. For SVM this can differ from the probability ranking;
+the output warns explicitly, and explanations target the estimator's decision.
 and neither explanations nor recommendations prescribe nutrient interventions.
 Only load trusted joblib files: Python model deserialization can execute code.
 

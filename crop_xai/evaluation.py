@@ -52,7 +52,7 @@ def save_figure(path):
 def export_evaluation(model, features, labels, class_names, directory):
     directory.mkdir(parents=True, exist_ok=True)
     probabilities = model.predict_proba(features)
-    predictions = model.classes_[np.argmax(probabilities, axis=1)]
+    predictions = model.predict(features)
     scores = metrics(labels, predictions, probabilities, model.classes_)
     save_json(directory / "metrics.json", scores)
     save_json(directory / "label_code_diagnostics.json", label_diagnostics(labels, predictions))
@@ -74,7 +74,7 @@ def export_evaluation(model, features, labels, class_names, directory):
     rows = pd.DataFrame({
         "row_index": features.index, "true_crop": np.asarray(class_names)[labels],
         "predicted_crop": np.asarray(class_names)[predictions],
-        "confidence": probabilities.max(axis=1),
+        "confidence": probabilities[np.arange(len(predictions)), predictions],
     })
     for class_index, class_name in enumerate(class_names):
         rows[f"probability_{class_name}"] = probabilities[:, class_index]
